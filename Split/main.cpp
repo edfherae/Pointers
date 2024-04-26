@@ -24,7 +24,7 @@ int main()
 	int* odd = new int[count_odd];
 	for (int i = 0, ev = 0, od = 0; i < n; i++)
 	{
-		(*(arr + i) % 2 == 0) ? even[ev++] = *(arr + i) : odd[od++] = *(arr + i);
+		(*(arr + i) % 2 ? even[ev++] : odd[od++]) = *(arr + i);
 	}
 
 	cout << endl << "Even nums:\n";
