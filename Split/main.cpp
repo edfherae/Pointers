@@ -9,6 +9,7 @@ void Print(int arr[], const int n);
 int main()
 {
 	setlocale(LC_ALL, "");
+	srand(time(NULL));
 	const int n = 10;
 	int count_even = 0, count_odd = 0;
 	int* arr = new int[n];
@@ -21,18 +22,10 @@ int main()
 
 	int* even = new int[count_even];
 	int* odd = new int[count_odd];
-	for (int i = 0, ev = count_even - 1, od = count_odd - 1; i < n; i++)
+	for (int i = 0, ev = 0, od = 0; i < n; i++)
 	{
-		if (*(arr + i) % 2 == 0)
-		{
-			even[ev] = *(arr + i);
-			ev--;
-		}
-		else if (*(arr + i) % 2 != 0)
-		{
-			odd[od] = *(arr + i);
-			od--;
-		}
+		(*(arr + i) % 2 == 0) ? even[ev] = *(arr + i) : odd[od] = *(arr + i);
+		even[ev] == (*(arr + i)) ? ev++ : od++;
 	}
 
 	cout << endl << "Even nums:\n";
@@ -40,9 +33,7 @@ int main()
 	cout << endl << "Odd nums:\n";
 	Print(odd, count_odd);
 
-	delete[] even;
-	delete[] odd;
-	delete[] arr;
+	delete[] even, odd, arr;
 }
 
 void FillRand(int arr[], const int n)
