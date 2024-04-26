@@ -3,55 +3,61 @@ using namespace std;
 
 #define tab "\t"
 
+void FillRand(int arr[], const int n);
+void Print(int arr[], const int n);
+
 int main()
 {
 	setlocale(LC_ALL, "");
 	const int n = 10;
 	int count_even = 0, count_odd = 0;
 	int* arr = new int[n];
+	FillRand(arr, n);
+	Print(arr, n);
 	for (int i = 0; i < n; i++)
 	{
-		*(arr + i) = rand() % 25;
-		cout << *(arr + i) << tab;
-
-		if (*(arr + i) % 2 == 0)
-		{
-			count_even++;
-		}
-		else if (*(arr + i) % 2 != 0)
-		{
-			count_odd++;
-		}
+		(*(arr + i) % 2 == 0) ? count_even++ : count_odd++;
 	}
-	cout << endl;
 
 	int* even = new int[count_even];
 	int* odd = new int[count_odd];
-	for (int i = 0, ev = count_even, od = count_odd; i < n; i++)
+	for (int i = 0, ev = count_even - 1, od = count_odd - 1; i < n; i++)
 	{
 		if (*(arr + i) % 2 == 0)
 		{
-			even[ev - 1] = *(arr + i);
+			even[ev] = *(arr + i);
 			ev--;
-			cout << *(arr + i) << " is even\n";
 		}
 		else if (*(arr + i) % 2 != 0)
 		{
-			odd[od - 1] = *(arr + i);
+			odd[od] = *(arr + i);
 			od--;
-			cout << *(arr + i) << " is odd\n";
 		}
 	}
 
 	cout << endl << "Even nums:\n";
-	for (int i = 0; i < count_even; i++)
-	{
-		cout << *(even + i) << tab;
-	}
+	Print(even, count_even);
 	cout << endl << "Odd nums:\n";
-	for (int i = 0; i < count_odd; i++)
+	Print(odd, count_odd);
+
+	delete[] even;
+	delete[] odd;
+	delete[] arr;
+}
+
+void FillRand(int arr[], const int n)
+{
+	for (int i = 0; i < n; i++)
 	{
-		cout << *(odd + i) << tab;
+		arr[i] = rand() % 100;
+	}
+}
+
+void Print(int arr[], const int n)
+{
+	for (int i = 0; i < n; i++)
+	{
+		cout << arr[i] << tab;
 	}
 	cout << endl;
 }
