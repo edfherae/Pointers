@@ -17,7 +17,7 @@ int main()
 	Print(arr, n);
 	for (int i = 0; i < n; i++)
 	{
-		(*(arr + i) % 2 == 0) ? count_even++ : count_odd++;
+		*(arr + i) % 2 ? count_even++ : count_odd++;
 	}
 
 	int* even = new int[count_even];
