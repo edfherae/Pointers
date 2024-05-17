@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 using namespace std;
 using std::cin;
 using std::cout;
@@ -19,7 +20,6 @@ template<typename T> T* pop_back(T* arr, int& n);
 template<typename T> T* pop_front(T* arr, int& n);
 template<typename T> T* insert(T* arr, int& n, T value, int index);
 template<typename T> T* erase(T* arr, int& n, int index);
-
 template<typename T> T** Allocate(T** arr, const int rows, const int cols);
 template<typename T> void Clear(T** arr, const int rows);
 template<typename T> T** push_row_front(T** arr, int& rows, const int cols);
@@ -35,13 +35,16 @@ template<typename T> void pop_col_back(T** arr, const int rows, int& cols);
 template<typename T> void pop_col_front(T** arr, const int rows, int& cols);
 template<typename T> void erase_col(T** arr, const int rows, int& cols, int index);
 
-#define DYNAMIC_MEMORY_1
-//#define DYNAMIC_MEMORY_2
+//#define DYNAMIC_MEMORY_1
+#define DYNAMIC_MEMORY_2
 //#define DYNAMIC_MEMORY_3
-//#define PREFORMANCE_CHECK
+//#define PREFORMANCE_CHECK_1DIM
+//#define PREFORMANCE_CHECK_2DIM
 
 int main()
 {
+	auto start_time = std::chrono::steady_clock::now();
+
 	setlocale(LC_ALL, "");
 	srand(time(NULL));
 #ifdef DYNAMIC_MEMORY_1
@@ -146,20 +149,71 @@ int main()
 	cout << **Arr << tab;
 #endif //DYNAMIC_MEMORY_3
 
-#ifdef PREFORMANCE_CHECK
-	int rows, cols;
-	cout << "Введите количество строк: "; cin >> rows;
-	cout << "Введите количество элементов строки: "; cin >> cols;
+#ifdef PREFORMANCE_CHECK_1DIM
+	int n = 10000;
+	typedef int DataType;
+	DataType* arr = new DataType[n];
 
-	int** arr = Allocate(rows, cols);
+	FillRand(arr, n);
+	Print(arr, n);
+
+	arr = push_back(arr, n, 0);
+	Print(arr, n);
+	arr = push_front(arr, n, 0);
+	Print(arr, n);
+	arr = pop_back(arr, n);
+	Print(arr, n);
+	arr = pop_front(arr, n);
+	Print(arr, n);
+	arr = insert(arr, n, 0, 5000);
+	Print(arr, n);
+	arr = erase(arr, n, 5000);
+	Print(arr, n);
+	delete[] arr;
+	// RESULTS:
+	//10000 elem
+	//not inline funcs -  9229328300 ns : 9.23 с
+	//+inline print -     9089548900 ns : 9.09 с
+#endif
+
+#ifdef PREFORMANCE_CHECK_2DIM
+
+	int rows = 10, cols = 10;
+
+	typedef int DataType;
+	DataType** arr = nullptr;
+	arr = Allocate(arr, rows, cols);
 	FillRand(arr, rows, cols);
 	Print(arr, rows, cols);
-	//pop_row_front(arr, rows, cols); Есть вопросик в реализации
-	Print(arr + 1, rows - 1, cols);
 
+	cout << arr[0] << endl;
+	cout << *arr[0] << endl;
+	pop_row_front(arr, rows, cols);
+	cout << arr[0] << endl;
+	cout << *arr[0] << endl;
+
+	/*arr = push_row_front(arr, rows, cols);
+	arr = insert_row(arr, rows, cols, 5000);
+	pop_row_back(arr, rows, cols);
+	arr = pop_row_front(arr, rows, cols);
+	arr = erase_row(arr, rows, cols, 5000);
+	push_col_back(arr, rows, cols);
+	push_col_front(arr, rows, cols);
+	insert_col(arr, rows, cols, 5000);
+	pop_col_back(arr, rows, cols);
+	pop_col_front(arr, rows, cols);
+	erase_col(arr, rows, cols, 5000);*/
 
 	Clear(arr, rows);
+	// RESULTS:
+	//25000 * 20000 elem
+	//not inline funcs =  48285925000 ns : 48.28 с
+	//all inline funcs =  48395628400 ns : 48.39 с
+	//-inline funcs, i++ > (i += 1) =  48520427200 ns : 48.30 с
 #endif
+	auto end_time = std::chrono::steady_clock::now();
+	auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
+	std::cout << elapsed_ns.count() << " ns\n";
 }
 
 void FillRand(int* arr, const int n, int minRand, int maxRand)
@@ -310,7 +364,7 @@ template<typename T> T** push_row_front(T** arr, int& rows, const int cols)
 template<typename T> T** push_row_back(T** arr, int& rows, const int cols) //за основу
 {
 	//1) создаем буферный массив указателей нужного размера
-	T** buffer = new T * [rows + 1] {};
+	T** buffer = new T* [rows + 1] {};
 	//2) копируем строки из исходного массива в массив указателей
 	for (int i = 0; i < rows; i++) buffer[i] = arr[i];
 	//3) удаляем исходный массив указателей
@@ -324,25 +378,19 @@ template<typename T> T** push_row_back(T** arr, int& rows, const int cols) //за 
 
 template<typename T> T** insert_row(T** arr, int& rows, const int cols, const int index)
 {
-	T** buffer = new T * [++rows] {};
-	for (int i = 0, temp = 0; i < rows - 1; i++)
+	T** buffer = new T* [rows + 1] {};
+	for (int i = 0; i < rows; i++)
 	{
-		if (i == index) temp++;
-		buffer[i + temp] = arr[i];
+		buffer[i < index ? i : i + 1] = arr[i];
+		//if (i == index) temp++;
+		//buffer[i + temp] = arr[i];
 	}
 	delete[] arr;
 	buffer[index] = new T[cols]{};
+	rows++;
 	return buffer;
 }
-//template<typename T> T** pop_row_back(T** arr, int& rows, const int cols) //за основу
-//{
-//    T** buffer = new T* [--rows];//переопределяем массив указателей
-//    for (int i = 0; i < rows; i++) buffer[i] = arr[i]; //копируем указатели на строки в новый массив
-//    delete[] arr[rows]; //удаляем удаляемую строку из памяти
-//    delete[] arr;
-//    return buffer;
-//}
-template<typename T> void pop_row_back(T** arr, int& rows, const int cols) //Error Heap Corruption
+template<typename T> void pop_row_back(T** arr, int& rows, const int cols)
 {
 	delete[] arr[rows - 1];
 	rows--;
@@ -359,15 +407,14 @@ template<typename T> T** pop_row_front(T** arr, int& rows, const int cols)
 	return buffer;
 	/*delete[] arr[0];
 	rows--;
-	arr += 1;*/
+	*arr += 1;*/
 }
 template<typename T> T** erase_row(T** arr, int& rows, const int cols, const int index)
 {
 	T** buffer = new T * [--rows] {};
 	for (int i = 0, temp = 0; i < rows; i++)
 	{
-		if (i == index) temp++;
-		buffer[i] = arr[i + temp];
+		buffer[i] = arr[i < index ? i : i + 1];
 	}
 	delete[] arr;
 	return buffer;
@@ -388,7 +435,7 @@ template<typename T> void push_col_front(T** arr, const int rows, int& cols)
 {
 	for (int i = 0; i < rows; i++)
 	{
-		T* buffer = new T[cols + 1]{}; //int* - строка, int** - массив указаьелей
+		T* buffer = new T[cols + 1]{}; //int* - строка, int** - массив указателей
 		for (int j = 0; j < cols; j++)
 			buffer[j + 1] = arr[i][j];
 		delete[] arr[i];
@@ -402,13 +449,7 @@ template<typename T> void insert_col(T** arr, const int rows, int& cols, int ind
 	{
 		T* buffer = new T[cols + 1]{};
 		for (int j = 0, temp = 0; j < cols; j++)
-		{
-			if (j == index) temp++;
-			buffer[j + temp] = arr[i][j];
-
-			//if (buff_j == index) buff_j++;
-			//else buffer[buff_j++] = arr[i][arr_j++];
-		}
+			buffer[j < index ? j : j + 1] = arr[i][j];
 		delete[] arr[i];
 		arr[i] = buffer;
 	}
@@ -444,7 +485,7 @@ template<typename T> void erase_col(T** arr, const int rows, int& cols, int inde
 	for (int i = 0; i < rows; i++)
 	{
 		T* buffer = new T[cols]{};
-		for (int j = 0, temp = 0; j < cols; j++)
+		for (int j = 0; j < cols; j++)
 			buffer[j] = arr[i][j < index ? j : j + 1]; //!!!
 		delete[] arr[i];
 		arr[i] = buffer;
