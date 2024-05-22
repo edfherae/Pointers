@@ -9,6 +9,7 @@ using std::endl;
 
 void FillRand(int* arr, const int n, int minRand = 0, int maxRand = 100);
 void FillRand(double* arr, const int n, int minRand = 0, int maxRand = 100);
+void printPointer(int p1, int* p2, int& p3);
 void FillRand(char* arr, const int n);
 void FillRand(int** arr, const int rows, const int cols, int minRand = 0, int maxRand = 100);
 void FillRand(double** arr, const int rows, const int cols, int minRand = 0, int maxRand = 100);
@@ -37,8 +38,8 @@ template<typename T> void pop_col_front(T** arr, const int rows, int& cols);
 template<typename T> void erase_col(T** arr, const int rows, int& cols, int index);
 
 //#define DYNAMIC_MEMORY_1
-#define DYNAMIC_MEMORY_2
-//#define DYNAMIC_MEMORY_3
+//#define DYNAMIC_MEMORY_2
+#define DYNAMIC_MEMORY_3
 //#define PREFORMANCE_CHECK_1DIM
 //#define PREFORMANCE_CHECK_2DIM
 
@@ -129,81 +130,27 @@ int main()
 	//  если имя массива (указатель) указывает всегда на первый элемент последовательности => *Arr содержит в себе адрес ячейки
 	//памяти первого элемента последовательности (массива указателей), соответственно, чтобы получить доступ к следующему указателю (строке)
 	//нужно прописать 
-	int** Arr = new int* [4] {};
-	cout << Arr << tab; //адрес указателя на указатели
-	cout << *Arr << endl; //адрес первого указателя
+	//int** Arr = new int* [4] {};
+	//cout << Arr << tab; //адрес указателя на указатели
+	//cout << *Arr << endl; //адрес первого указателя
+	////cout << **Arr << tab;
+	//Arr = Allocate(4, 3);
+	//cout << Arr << tab;
+	//cout << *Arr << tab;
 	//cout << **Arr << tab;
-	Arr = Allocate(4, 3);
-	cout << Arr << tab;
-	cout << *Arr << tab;
-	cout << **Arr << tab;
+	int x = 5;
+	int* pointer = new int[5] {1,2,3,4,5};
+	cout << *(pointer * 2);
+	//printPointer(*pointer, pointer, *pointer);
+
 #endif //DYNAMIC_MEMORY_3
+}
 
-#ifdef PREFORMANCE_CHECK_1DIM
-	int n = 10000;
-	typedef int DataType;
-	DataType* arr = new DataType[n];
-
-	FillRand(arr, n);
-	Print(arr, n);
-
-	arr = push_back(arr, n, 0);
-	Print(arr, n);
-	arr = push_front(arr, n, 0);
-	Print(arr, n);
-	arr = pop_back(arr, n);
-	Print(arr, n);
-	arr = pop_front(arr, n);
-	Print(arr, n);
-	arr = insert(arr, n, 0, 5000);
-	Print(arr, n);
-	arr = erase(arr, n, 5000);
-	Print(arr, n);
-	delete[] arr;
-	// RESULTS:
-	//10000 elem
-	//not inline funcs -  9229328300 ns : 9.23 с
-	//+inline print -     9089548900 ns : 9.09 с
-#endif
-
-#ifdef PREFORMANCE_CHECK_2DIM
-
-	int rows = 10, cols = 10;
-
-	typedef int DataType;
-	DataType** arr = nullptr;
-	arr = Allocate(arr, rows, cols);
-	FillRand(arr, rows, cols);
-	Print(arr, rows, cols);
-
-	cout << arr[0] << endl;
-	cout << *arr[0] << endl;
-	pop_row_front(arr, rows, cols);
-	cout << arr[0] << endl;
-	cout << *arr[0] << endl;
-
-	/*arr = push_row_front(arr, rows, cols);
-	arr = insert_row(arr, rows, cols, 5000);
-	pop_row_back(arr, rows, cols);
-	arr = pop_row_front(arr, rows, cols);
-	arr = erase_row(arr, rows, cols, 5000);
-	push_col_back(arr, rows, cols);
-	push_col_front(arr, rows, cols);
-	insert_col(arr, rows, cols, 5000);
-	pop_col_back(arr, rows, cols);
-	pop_col_front(arr, rows, cols);
-	erase_col(arr, rows, cols, 5000);*/
-
-	Clear(arr, rows);
-	// RESULTS:
-	//25000 * 20000 elem
-	//not inline funcs =  48285925000 ns : 48.28 с
-	//all inline funcs =  48395628400 ns : 48.39 с
-	//-inline funcs, i++ > (i += 1) =  48520427200 ns : 48.30 с
-#endif
-	//auto end_time = std::chrono::steady_clock::now();
-	//auto elapsed_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time);
-	//std::cout << elapsed_ns.count() << " ns\n";
+void printPointer(int p1, int* p2, int& p3)
+{
+	cout << "p1 " << p1 << endl;
+	cout << "p2 " << p2 << &p2<< endl;
+	cout << "p3 " << p3 << endl;
 }
 
 void FillRand(int* arr, const int n, int minRand, int maxRand)
@@ -245,9 +192,7 @@ template<typename T> void Print(T arr[], const int n)
 template<typename T> void Print(T** arr, const int rows, const int cols)
 {
 	for (int i = 0; i < rows; i++)
-	{
 		Print(arr[i], cols);
-	}
 	cout << endl;
 }
 template<typename T> T* push_back(T* arr, int& n, T value) //должно вызывать insert
@@ -335,12 +280,6 @@ template<typename T> void Clear(T** arr, const int rows)
 template<typename T> T** push_row_front(T** arr, int& rows, const int cols) //
 {
 	return push_front(arr, rows, new T[cols]{});
-	/*T** buffer = new T * [rows + 1] {};
-	for (int i = 0; i < rows; i++) buffer[i + 1] = arr[i];
-	delete[] arr;
-	buffer[0] = new T[cols]{};
-	rows++;
-	return buffer;*/
 }
 template<typename T> T** push_row_back(T** arr, int& rows, const int cols) //за основу
 {
@@ -350,51 +289,21 @@ template<typename T> T** push_row_back(T** arr, int& rows, const int cols) //за 
 template<typename T> T** insert_row(T** arr, int& rows, const int cols, const int index) //
 {
 	return insert(arr, rows, new T[cols]{}, index);
-	//T** buffer = new T* [rows + 1] {};
-	//for (int i = 0; i < rows; i++)
-	//{
-	//	buffer[i < index ? i : i + 1] = arr[i];
-	//	//if (i == index) temp++;
-	//	//buffer[i + temp] = arr[i];
-	//}
-	//delete[] arr;
-	//buffer[index] = new T[cols]{};
-	//rows++;
-	//return buffer;
 }
 template<typename T> T** pop_row_back(T** arr, int& rows, const int cols)
 {
 	delete[] arr[rows - 1];
 	return pop_back(arr, rows);
 }
-//int** pop_row_front(int** arr, int& rows, const int cols)
-//{
-//    pop_row_back(arr, rows);
-//}
 template<typename T> T** pop_row_front(T** arr, int& rows, const int cols) //
 {
 	delete[] arr[0];
 	return pop_front(arr, rows);
-	/*T** buffer = new T * [--rows];
-	for (int i = 0; i < rows; i++) buffer[i] = arr[i + 1];
-	delete[] arr;
-	return buffer;*/
-
-	/*delete[] arr[0];
-	rows--;
-	*arr += 1;*/
 }
 template<typename T> T** erase_row(T** arr, int& rows, const int cols, const int index) //
 {
 	delete[] arr[index];
 	return erase(arr, rows, index);
-	/*T** buffer = new T * [--rows] {};
-	for (int i = 0, temp = 0; i < rows; i++)
-	{
-		buffer[i] = arr[i < index ? i : i + 1];
-	}
-	delete[] arr;
-	return buffer;*/
 }
 template<typename T> void push_col_back(T** arr, const int rows, int& cols)
 {
